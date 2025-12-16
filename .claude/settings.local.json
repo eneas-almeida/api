@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean compile:*)",
+      "Bash(export JAVA_HOME=\"C:\\correios\\java\\jdk\\jdk21.0.8_9\")"
+    ]
+  }
+}
