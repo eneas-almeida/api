@@ -19,11 +19,11 @@ public class PeopleGrpcClient implements PeopleClient {
     @Override
     public Mono<People> getPeopleById(int id) {
         return Mono.fromCallable(() -> {
-            ServiceProto.PeopleRequest request = ServiceProto.PeopleRequest.newBuilder()
+            ServiceProto.PeopleRequestGrpc request = ServiceProto.PeopleRequestGrpc.newBuilder()
                     .setId(id)
                     .build();
 
-            ServiceProto.PeopleResponse response = peopleServiceStub.getPeople(request);
+            ServiceProto.PeopleResponseGrpc response = peopleServiceStub.getPeople(request);
 
             return new People(response.getId(), response.getName(), response.getEmail());
         })
@@ -33,7 +33,7 @@ public class PeopleGrpcClient implements PeopleClient {
     @Override
     public Flux<People> listPeople() {
         return Mono.fromCallable(() -> {
-            ServiceProto.ListPeopleRequest request = ServiceProto.ListPeopleRequest.newBuilder().build();
+            ServiceProto.ListPeopleRequestGrpc request = ServiceProto.ListPeopleRequestGrpc.newBuilder().build();
             return peopleServiceStub.listPeople(request);
         })
         .subscribeOn(Schedulers.boundedElastic())
