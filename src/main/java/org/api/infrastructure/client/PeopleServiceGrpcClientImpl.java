@@ -1,23 +1,27 @@
-package org.api.infrastructure.grpc;
+package org.api.infrastructure.client;
 
 import com.people.grpc.ServiceProto;
 import com.people.grpc.PeopleServiceGrpc;
+import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.api.domain.client.PeopleClient;
-import org.api.domain.entity.People;
+import org.api.application.dto.PeopleResponse;
+import org.api.domain.client.PeopleServiceClient;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @Component
-public class PeopleGrpcClient implements PeopleClient {
+@RequiredArgsConstructor
+public class PeopleServiceGrpcClientImpl implements PeopleServiceClient {
 
     @GrpcClient("people-service")
     private PeopleServiceGrpc.PeopleServiceBlockingStub peopleServiceStub;
 
+    private final PeopleGrpcMapper peopleGrpcMapper;
+
     @Override
-    public Mono<People> getPeopleById(int id) {
+    public Mono<PeopleResponse> getPeopleById(int id) {
         return Mono.fromCallable(() -> {
             ServiceProto.PeopleRequestGrpc request = ServiceProto.PeopleRequestGrpc.newBuilder()
                     .setId(id)
@@ -25,19 +29,19 @@ public class PeopleGrpcClient implements PeopleClient {
 
             ServiceProto.PeopleResponseGrpc response = peopleServiceStub.getPeople(request);
 
-            return new People(response.getId(), response.getName(), response.getEmail());
+            return peopleGrpcMapper.toPeopleResponse(response);
         })
         .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
-    public Flux<People> listPeople() {
+    public Flux<PeopleResponse> listPeople() {
         return Mono.fromCallable(() -> {
             ServiceProto.ListPeopleRequestGrpc request = ServiceProto.ListPeopleRequestGrpc.newBuilder().build();
             return peopleServiceStub.listPeople(request);
         })
         .subscribeOn(Schedulers.boundedElastic())
         .flatMapMany(response -> Flux.fromIterable(response.getPeopleList())
-                .map(people -> new People(people.getId(), people.getName(), people.getEmail())));
+                .map(peopleGrpcMapper::toPeopleResponse));
     }
 }
