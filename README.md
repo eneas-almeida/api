@@ -604,6 +604,8 @@ Cliente HTTP (JSON Response)
 
 Este projeto é um exemplo educacional e está disponível para uso livre.
 
----
+<hr />
 
-**Desenvolvido com Java 21 + Spring Boot + WebFlux + gRPC + MapStruct + Lombok**
+<div>
+  <sub>Conteúdo criado por <a href="https://github.com/eneas-almeida">Enéas Almeida</a></sub>
+</div>
